@@ -1,6 +1,7 @@
 module Main where
 
 import Data.List          (intercalate)
+import System.Clock
 import System.Environment (getArgs)
 import System.Exit        (exitFailure)
 import System.IO          (hFlush, stdout)
@@ -78,9 +79,12 @@ askDay = do
       day          = dateToWeekDay y m d
   putStr $ intercalate "-" (map show [y, m, d]) ++ "? "
   hFlush stdout
+  start <- getTime Monotonic
   ans <- readDay
+  end <- getTime Monotonic
+  let time = timeSpecAsNanoSecs $ diffTimeSpec start end
   if day == ans
-     then putStrLn "Correct!"
+     then putStrLn $ "Correct! You took " ++ show (time `div` 10^9) ++ " seconds."
      else putStrLn $ "Wrong! Correct answer was " ++ show day
 
 readDay :: IO WeekDay
