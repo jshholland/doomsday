@@ -67,7 +67,7 @@ dateToWeekDay :: Year -> Month -> Day -> WeekDay
 dateToWeekDay y m d = intToWeekDay $ (d - doomsday y m + yearToDoomsday y) `mod` 7
 
 askDays :: Int -> IO ()
-askDays times = sequence_ $ replicate times askDay
+askDays times = replicateM_ times askDay
 
 askDay :: IO ()
 askDay = do
