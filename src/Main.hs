@@ -85,7 +85,7 @@ askDay = do
   let time = timeSpecAsNanoSecs $ diffTimeSpec start end
   if day == ans
      then putStrLn $ "Correct! You took " ++ show (time `div` 10^9) ++ " seconds."
-     else putStrLn $ "Wrong! Correct answer was " ++ show day
+     else putStrLn $ "Wrong! Correct answer was " ++ show day ++ "."
 
 readDay :: IO WeekDay
 readDay = do
