@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad      (replicateM_)
 import Data.List          (intercalate)
 import System.Clock
 import System.Environment (getArgs)
