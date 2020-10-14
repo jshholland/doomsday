@@ -1,4 +1,6 @@
 const std = @import("std");
+const Random = std.rand.Random;
+const expect = std.testing.expect;
 
 const Day = enum {
     Sunday,
@@ -10,15 +12,15 @@ const Day = enum {
     Saturday,
 
     fn toString(self: Day) []const u8 {
-        switch (self) {
-            Sunday => "Sunday",
-            Monday => "Monday",
-            Tuesday => "Tuesday",
-            Wednesday => "Wednesday",
-            Thursday => "Thursday",
-            Friday => "Friday",
-            Saturday => "Saturday",
-        }
+        return switch (self) {
+            .Sunday => "Sunday",
+            .Monday => "Monday",
+            .Tuesday => "Tuesday",
+            .Wednesday => "Wednesday",
+            .Thursday => "Thursday",
+            .Friday => "Friday",
+            .Saturday => "Saturday",
+        };
     }
 };
 
@@ -35,7 +37,22 @@ const Month = enum {
     October,
     November,
     December,
+
+    fn numDays(self: Month, leap: bool) u8 {
+        return switch (self) {
+            .January, .March, .May, .July, .August, .October, .December => 31,
+            .April, .June, .September, .November => 30,
+            .February => if (leap) @as(u8, 29) else 28,
+        };
+    }
 };
+
+fn randDate(r: *Random) Date {
+    const y = r.intRangeLessThan(u16, 1600, 2500);
+    const m = @intToEnum(Month, r.intRangeAtMost(@TagType(Month), 1, 12));
+    const d = r.intRangeAtMost(u8, 1, m.numDays(isLeap(y)));
+    return Date{ .year = y, .month = m, .day = d };
+}
 
 const Date = struct {
     year: u16,
@@ -71,9 +88,9 @@ const Date = struct {
 
 test "day of week" {
     const d1 = Date{ .year = 2020, .month = .October, .day = 12 };
-    std.testing.expect(d1.dayOfWeek() == .Monday);
+    expect(d1.dayOfWeek() == .Monday);
     const d2 = Date{ .year = 1815, .month = .February, .day = 14 };
-    std.testing.expect(d2.dayOfWeek() == .Tuesday);
+    expect(d2.dayOfWeek() == .Tuesday);
 }
 
 fn isLeap(y: u16) bool {
@@ -81,9 +98,9 @@ fn isLeap(y: u16) bool {
 }
 
 test "leap years" {
-    std.testing.expect(isLeap(2000));
-    std.testing.expect(isLeap(1996));
-    std.testing.expect(!isLeap(1900));
+    expect(isLeap(2000));
+    expect(isLeap(1996));
+    expect(!isLeap(1900));
 }
 
 fn centuryAnchor(y: u16) u8 {
@@ -92,10 +109,10 @@ fn centuryAnchor(y: u16) u8 {
 }
 
 test "century anchors" {
-    std.testing.expect(centuryAnchor(1776) == 0);
-    std.testing.expect(centuryAnchor(1837) == 5);
-    std.testing.expect(centuryAnchor(1952) == 3);
-    std.testing.expect(centuryAnchor(2001) == 2);
+    expect(centuryAnchor(1776) == 0);
+    expect(centuryAnchor(1837) == 5);
+    expect(centuryAnchor(1952) == 3);
+    expect(centuryAnchor(2001) == 2);
 }
 
 fn doomsday(y: u16) u8 {
@@ -105,9 +122,24 @@ fn doomsday(y: u16) u8 {
 }
 
 test "doomsday calculation" {
-    std.testing.expect(doomsday(2020) == 6);
-    std.testing.expect(doomsday(1966) == 1);
-    std.testing.expect(doomsday(1939) == 2);
+    expect(doomsday(2020) == 6);
+    expect(doomsday(1966) == 1);
+    expect(doomsday(1939) == 2);
 }
 
-pub fn main() !void {}
+fn askDay() !bool {
+    const stdout = std.io.getStdOut();
+    const stdin = std.io.getStdIn();
+    var b: [1]u8 = undefined;
+    while (true) {
+        try stdout.writeAll("enter date: ");
+        _ = try stdin.read(&b);
+        std.debug.warn("read: {}", .{b});
+    }
+}
+
+pub fn main() !void {
+    var r = std.rand.DefaultPrng.init(0x1337).random;
+    const date = randDate(&r);
+    std.debug.warn("{}-{}-{}", .{ date.year, date.month, date.day });
+}
