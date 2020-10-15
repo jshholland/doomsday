@@ -1,6 +1,7 @@
 const std = @import("std");
 const Random = std.rand.Random;
 const expect = std.testing.expect;
+const panic = std.debug.panic;
 
 const Day = enum {
     Sunday,
@@ -59,6 +60,10 @@ const Date = struct {
     month: Month,
     day: u8,
 
+    pub fn format(self: Date, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: var) !void {
+        try writer.print("{} {} {}", .{ self.day, @tagName(self.month), self.year });
+    }
+
     fn dayOfWeek(self: Date) Day {
         const dd = doomsday(self.year);
         const d = switch (self.month) {
@@ -104,8 +109,8 @@ test "leap years" {
 }
 
 fn centuryAnchor(y: u16) u8 {
-    const c = @intCast(u8, y / 100 % 4);
-    return (5 * c + 2) % 7;
+    const c = y / 100 % 4;
+    return @intCast(u8, (5 * c + 2) % 7);
 }
 
 test "century anchors" {
@@ -117,8 +122,8 @@ test "century anchors" {
 
 fn doomsday(y: u16) u8 {
     const anchor = centuryAnchor(y);
-    const year = @intCast(u8, y % 100);
-    return (year + year / 4 + anchor) % 7;
+    const year = y % 100;
+    return @intCast(u8, (year + year / 4 + anchor) % 7);
 }
 
 test "doomsday calculation" {
@@ -127,19 +132,34 @@ test "doomsday calculation" {
     expect(doomsday(1939) == 2);
 }
 
-fn askDay() !bool {
-    const stdout = std.io.getStdOut();
+fn readDay(b: []const u8) ?u8 {
+    return null;
+}
+
+const maxLineLength = 512;
+
+fn askDay(d: Date) !bool {
+    const stdout = std.io.getStdOut().outStream();
     const stdin = std.io.getStdIn();
-    var b: [1]u8 = undefined;
+    var b: [maxLineLength]u8 = undefined;
+    const day = d.dayOfWeek();
+    try stdout.print("{}? ", .{d});
+    var t = try std.time.Timer.start();
     while (true) {
-        try stdout.writeAll("enter date: ");
-        _ = try stdin.read(&b);
-        std.debug.warn("read: {}", .{b});
+        const n = try stdin.read(&b);
+        if (readDay(b[0..n])) |read| {
+            return read == @enumToInt(day);
+        } else {
+            try stdout.print("not a day, try again: ", .{});
+            continue;
+        }
     }
 }
 
 pub fn main() !void {
-    var r = std.rand.DefaultPrng.init(0x1337).random;
-    const date = randDate(&r);
-    std.debug.warn("{}-{}-{}", .{ date.year, date.month, date.day });
+    var seed: u64 = undefined;
+    try std.crypto.randomBytes(std.mem.asBytes(&seed));
+    const rand = &std.rand.DefaultPrng.init(seed).random;
+    const date = randDate(rand);
+    _ = try askDay(date);
 }
