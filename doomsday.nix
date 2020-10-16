@@ -1,7 +1,7 @@
 { mkDerivation, base, clock, random, stdenv }:
 mkDerivation {
   pname = "doomsday";
-  version = "0.1.0.0";
+  version = "0.2.0.0";
   src = ./.;
   isLibrary = false;
   isExecutable = true;

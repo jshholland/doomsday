@@ -1,5 +1,5 @@
 name:                doomsday
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            Practise calculating day of week
 description:         Please see README.md
 homepage:            https://github.com/jshholland/doomsday#readme
@@ -7,7 +7,7 @@ license:             BSD3
 license-file:        LICENSE
 author:              Josh Holland
 maintainer:          josh@inv.alid.pw
-copyright:           2016 Josh Holland
+copyright:           2016, 2020 Josh Holland
 category:            Application
 build-type:          Simple
 cabal-version:       >=1.10

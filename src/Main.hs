@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Monad      (replicateM_)
+import Data.Char          (toUpper, toLower)
 import Data.List          (intercalate)
 import System.Clock
 import System.Environment (getArgs)
@@ -83,15 +84,19 @@ askDay = do
   start <- getTime Monotonic
   ans <- readDay
   end <- getTime Monotonic
-  let time = timeSpecAsNanoSecs $ diffTimeSpec start end
+  let time = toNanoSecs $ diffTimeSpec start end
   if day == ans
      then putStrLn $ "Correct! You took " ++ show (time `div` 10^9) ++ " seconds."
      else putStrLn $ "Wrong! Correct answer was " ++ show day ++ "."
 
+capitalise :: String -> String
+capitalise [] = []
+capitalise (c:cs) = toUpper c : map toLower cs
+
 readDay :: IO WeekDay
 readDay = do
-  line <- getLine
-  case readMaybe line of
+  [word] <- words <$> getLine
+  case readMaybe $ capitalise word of
     Just day -> return day
     Nothing  -> putStr "not a day, try again: " >> hFlush stdout >> readDay
 
