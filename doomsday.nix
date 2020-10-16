@@ -1,8 +1,8 @@
-{ mkDerivation, base, clock, random, stdenv }:
+{ mkDerivation, base, clock, random, stdenv, lib }:
 mkDerivation {
   pname = "doomsday";
   version = "0.2.0.0";
-  src = ./.;
+  src = lib.cleanSource ./.;
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = [ base clock random ];
