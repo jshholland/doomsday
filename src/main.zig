@@ -132,13 +132,33 @@ test "doomsday calculation" {
     expect(doomsday(1939) == 2);
 }
 
-fn readDay(b: []const u8) ?u8 {
-    return null;
+fn readDay(b: []const u8) ?Day {
+    const isSpace = std.ascii.isSpace;
+    var start: usize = 0;
+    var end: usize = b.len;
+    while (start < end) : (start += 1) {
+        if (!isSpace(b[start])) {
+            break;
+        }
+    }
+    while (end >= start) : (end -= 1) {
+        if (!isSpace(b[end - 1])) {
+            break;
+        }
+    }
+    if (start >= end) {
+        return null;
+    }
+    const i = std.fmt.parseInt(u8, b[start..end], 10) catch return null;
+    if (i >= 7) {
+        return null;
+    }
+    return @intToEnum(Day, @intCast(@TagType(Day), i));
 }
 
 const maxLineLength = 512;
 
-fn askDay(d: Date) !bool {
+fn askDay(d: Date) !void {
     const stdout = std.io.getStdOut().outStream();
     const stdin = std.io.getStdIn();
     var b: [maxLineLength]u8 = undefined;
@@ -148,10 +168,14 @@ fn askDay(d: Date) !bool {
     while (true) {
         const n = try stdin.read(&b);
         if (readDay(b[0..n])) |read| {
-            return read == @enumToInt(day);
+            if (read == day) {
+                try stdout.print("Correct! You took {} seconds.\n", .{t.read() / 1_000_000_000});
+                return;
+            } else {
+                try stdout.print("Wrong, try again: ", .{});
+            }
         } else {
             try stdout.print("not a day, try again: ", .{});
-            continue;
         }
     }
 }
@@ -161,5 +185,5 @@ pub fn main() !void {
     try std.crypto.randomBytes(std.mem.asBytes(&seed));
     const rand = &std.rand.DefaultPrng.init(seed).random;
     const date = randDate(rand);
-    _ = try askDay(date);
+    try askDay(date);
 }
