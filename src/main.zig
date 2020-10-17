@@ -2,7 +2,7 @@ const std = @import("std");
 const process = std.process;
 const Random = std.rand.Random;
 const expect = std.testing.expect;
-const panic = std.debug.panic;
+const parseInt = std.fmt.parseInt;
 
 const Day = enum {
     Sunday,
@@ -150,7 +150,7 @@ fn readDay(b: []const u8) ?Day {
     if (start >= end) {
         return null;
     }
-    const i = std.fmt.parseInt(u8, b[start..end], 10) catch return null;
+    const i = parseInt(u8, b[start..end], 10) catch return null;
     if (i >= 7) {
         return null;
     }
@@ -189,7 +189,7 @@ pub fn main() !void {
     const exe = try args_it.next(alloc).?;
 
     const num_questions = if (args_it.next(alloc)) |arg_or_err|
-        std.fmt.parseInt(usize, try arg_or_err, 10) catch return usage(exe)
+        parseInt(usize, try arg_or_err, 10) catch return usage(exe)
     else
         1;
 
