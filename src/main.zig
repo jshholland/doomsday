@@ -12,18 +12,6 @@ const Day = enum {
     Thursday,
     Friday,
     Saturday,
-
-    fn toString(self: Day) []const u8 {
-        return switch (self) {
-            .Sunday => "Sunday",
-            .Monday => "Monday",
-            .Tuesday => "Tuesday",
-            .Wednesday => "Wednesday",
-            .Thursday => "Thursday",
-            .Friday => "Friday",
-            .Saturday => "Saturday",
-        };
-    }
 };
 
 const Month = enum {
