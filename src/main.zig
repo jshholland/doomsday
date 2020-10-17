@@ -1,4 +1,5 @@
 const std = @import("std");
+const process = std.process;
 const Random = std.rand.Random;
 const expect = std.testing.expect;
 const panic = std.debug.panic;
@@ -181,9 +182,33 @@ fn askDay(d: Date) !void {
 }
 
 pub fn main() !void {
+    var mem: [1024]u8 = undefined;
+    var alloc = &std.heap.FixedBufferAllocator.init(mem[0..]).allocator;
+
+    var args_it = process.args();
+    const exe = try args_it.next(alloc).?;
+
+    const num_questions = if (args_it.next(alloc)) |arg_or_err|
+        std.fmt.parseInt(usize, try arg_or_err, 10) catch return usage(exe)
+    else
+        1;
+
+    if (args_it.next(alloc)) |_| {
+        return usage(exe);
+    }
+
     var seed: u64 = undefined;
     try std.crypto.randomBytes(std.mem.asBytes(&seed));
     const rand = &std.rand.DefaultPrng.init(seed).random;
-    const date = randDate(rand);
-    try askDay(date);
+
+    var asked: usize = 0;
+    while (asked < num_questions) : (asked += 1) {
+        const date = randDate(rand);
+        try askDay(date);
+    }
+}
+
+fn usage(exe: []const u8) !void {
+    std.debug.warn("Usage: {} [number]\n", .{exe});
+    return error.Invalid;
 }
