@@ -88,7 +88,7 @@ const Date = struct {
             .December => 12,
         };
         // add 35 (0 mod 7) to avoid underflow, since d is at most 29
-        return @intToEnum(Day, @intCast(u3, (self.day + 35 - d + dd) % 7));
+        return @intToEnum(Day, @intCast(@TagType(Day), (self.day + 35 - d + dd) % 7));
     }
 };
 
