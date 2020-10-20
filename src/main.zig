@@ -145,7 +145,7 @@ fn readDay(b: []const u8) ?Day {
     return @intToEnum(Day, @intCast(@TagType(Day), i));
 }
 
-const maxLineLength = 512;
+const maxLineLength = 4096; // as in termios(3)
 
 fn askDay(d: Date) !void {
     const stdout = std.io.getStdOut().outStream();
