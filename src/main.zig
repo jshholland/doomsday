@@ -171,7 +171,7 @@ fn askDay(d: Date) !void {
 
 pub fn main() !void {
     var mem: [1024]u8 = undefined;
-    var alloc = &std.heap.FixedBufferAllocator.init(mem[0..]).allocator;
+    const alloc = &std.heap.FixedBufferAllocator.init(&mem).allocator;
 
     var args_it = process.args();
     const exe = try args_it.next(alloc).?;
