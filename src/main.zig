@@ -122,27 +122,11 @@ test "doomsday calculation" {
 }
 
 fn readDay(b: []const u8) ?Day {
-    const isSpace = std.ascii.isSpace;
-    var start: usize = 0;
-    var end: usize = b.len;
-    while (start < end) : (start += 1) {
-        if (!isSpace(b[start])) {
-            break;
-        }
-    }
-    while (end >= start) : (end -= 1) {
-        if (!isSpace(b[end - 1])) {
-            break;
-        }
-    }
-    if (start >= end) {
-        return null;
-    }
-    const i = parseInt(u8, b[start..end], 10) catch return null;
+    const i = parseInt(@TagType(Day), std.mem.trim(u8, b, " \n"), 10) catch return null;
     if (i >= 7) {
         return null;
     }
-    return @intToEnum(Day, @intCast(@TagType(Day), i));
+    return @intToEnum(Day, i);
 }
 
 const maxLineLength = 4096; // as in termios(3)
