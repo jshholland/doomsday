@@ -142,7 +142,10 @@ fn askDay(d: Date) !void {
         const n = try stdin.read(&b);
         if (readDay(b[0..n])) |read| {
             if (read == day) {
-                try stdout.print("Correct! You took {} seconds.\n", .{t.read() / 1_000_000_000});
+                const seconds = t.read() / 1_000_000_000;
+                try stdout.print("Correct! You took {} second{}.\n", .{
+                    seconds, plural(seconds),
+                });
                 return;
             } else {
                 try stdout.print("Wrong, try again: ", .{});
@@ -150,6 +153,14 @@ fn askDay(d: Date) !void {
         } else {
             try stdout.print("not a day, try again: ", .{});
         }
+    }
+}
+
+fn plural(n: var) []const u8 {
+    if (n == 1) {
+        return "";
+    } else {
+        return "s";
     }
 }
 
