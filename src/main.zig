@@ -1,5 +1,4 @@
 const std = @import("std");
-const process = std.process;
 const Random = std.rand.Random;
 const expect = std.testing.expect;
 const parseInt = std.fmt.parseInt;
@@ -165,20 +164,21 @@ fn plural(n: anytype) []const u8 {
 }
 
 pub fn main() !void {
-    var mem: [1024]u8 = undefined;
-    const alloc = &std.heap.FixedBufferAllocator.init(&mem).allocator;
+    const num_questions = blk: {
+        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer arena.deinit();
+        const allocator = &arena.allocator;
 
-    var args_it = process.args();
-    const exe = try args_it.next(alloc).?;
+        var args_it = std.process.args();
+        const exe = try args_it.next(allocator).?;
 
-    const num_questions = if (args_it.next(alloc)) |arg_or_err|
-        parseInt(usize, try arg_or_err, 10) catch return usage(exe)
-    else
-        1;
-
-    if (args_it.next(alloc)) |_| {
-        return usage(exe);
-    }
+        const res = if (args_it.next(allocator)) |arg_or_err|
+            parseInt(usize, try arg_or_err, 10) catch return usage(exe)
+        else
+            1;
+        if (args_it.next(allocator) != null) return usage(exe);
+        break :blk res;
+    };
 
     var seed: u64 = undefined;
     try std.crypto.randomBytes(std.mem.asBytes(&seed));
