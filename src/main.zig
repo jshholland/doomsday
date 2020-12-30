@@ -136,7 +136,7 @@ fn askDay(d: Date) !void {
     var b: [maxLineLength]u8 = undefined;
     const day = d.dayOfWeek();
     try stdout.print("{}? ", .{d});
-    var t = try std.time.Timer.start();
+    const t = try std.time.Timer.start();
     while (true) {
         const n = try stdin.read(&b);
         if (readDay(b[0..n])) |read| {
