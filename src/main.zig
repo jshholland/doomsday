@@ -49,7 +49,7 @@ const Date = struct {
     month: Month,
     day: u8,
 
-    pub fn format(self: Date, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: var) !void {
+    pub fn format(self: Date, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
         try writer.print("{} {} {}", .{ self.day, @tagName(self.month), self.year });
     }
 
@@ -132,7 +132,7 @@ fn readDay(b: []const u8) ?Day {
 const maxLineLength = 4096; // as in termios(3)
 
 fn askDay(d: Date) !void {
-    const stdout = std.io.getStdOut().outStream();
+    const stdout = std.io.getStdOut().writer();
     const stdin = std.io.getStdIn();
     var b: [maxLineLength]u8 = undefined;
     const day = d.dayOfWeek();
@@ -156,7 +156,7 @@ fn askDay(d: Date) !void {
     }
 }
 
-fn plural(n: var) []const u8 {
+fn plural(n: anytype) []const u8 {
     if (n == 1) {
         return "";
     } else {
@@ -192,6 +192,6 @@ pub fn main() !void {
 }
 
 fn usage(exe: []const u8) !void {
-    std.debug.warn("Usage: {} [number]\n", .{exe});
+    std.log.err("Usage: {} [number]\n", .{exe});
     return error.Invalid;
 }
